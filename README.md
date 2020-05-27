@@ -1,5 +1,14 @@
 # Anti web crawl,
 
+
+## Feature
+
+- reject dev tool
+- run a javascript command if chome headless deteactd.
+- get browser fingerprint and post to SOME URL
+
+
+
 ## Install
 
 
@@ -29,7 +38,10 @@ to the require section of your `composer.json` file.
 <?= \mallka\anticrawl\Anti::widget([
 
         //the url of upload fingerprint,it will not fetch fingerprint if not set
-        'uploadFingerUrl'=>Url::to(['/anticrawl/anti-log/create']),   
+        'uploadFingerUrl'=>Url::to(['/anticrawl/anti-log/create']), 
+        
+        //run js command if chrome headless detected.default is alert 
+        'homelessJsCmd'=>'window.location.href="xxxxx";',  
          
                                    ]);?>
 ```

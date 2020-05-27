@@ -10,6 +10,7 @@
 	{
 
 		public $uploadFingerUrl;
+		public $homelessJsCmd;
 
 		public function init()
 		{
@@ -21,7 +22,12 @@
 		{
 
 			$this->stopDebugger();
-			$this->stopChromeHeadless();
+
+
+			if($this->homelessJsCmd!=null)
+				$this->stopChromeHeadless($this->homelessJsCmd);
+			else
+				$this->stopChromeHeadless();
 
 			if($this->uploadFingerUrl!=null)
 				$this->uploadFingerprint($this->uploadFingerUrl);
