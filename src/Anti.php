@@ -10,17 +10,13 @@
 	{
 
 
-//		public function init()
-//		{
-//
-//
-//		}
+
 
 
 		public function run()
 		{
 
-
+			$this->uploadFingerprint();
 		}
 
 		/**
@@ -93,5 +89,52 @@ EOF;
 			$view->registerJs($js,View::POS_READY);
 		}
 
+		/**
+		 * 上报浏览器指纹，
+		 * post方式提交，会有fingerPrint、executeTime、detail 三个参数提交。
+		 * 预计耗费时间200-500ms以内。如需加速，可以排除一些依据
+		 *
+		 * @param $url 上报指纹的网址
+		 */
+		public function uploadFingerprint($url='aaa.t')
+		{
+			$view = $this->getView();
+			FingerprintAsset::register($view);
+			$js =<<< EOF
+    var fingerprintReport = function () {
+      var d1 = new Date()
+      Fingerprint2.get(function(components) {
+      	//fingetprint
+        var murmur = Fingerprint2.x64hash128(components.map(function (pair) { return pair.value }).join(), 31)
+        
+        //execute times(ms)
+        var d2 = new Date()
+        var time = d2 - d1
 
+		//detail
+        var details = ""
+        for (var index in components) {
+          var obj = components[index]
+          var line = obj.key + " = " + String(obj.value).substr(0, 100)
+          
+          details += line + "\n"
+        }
+        $.post('{$url}', {fingerPrint:murmur, executeTime:time,detail:details});
+        
+        
+      })
+    }
+
+    if (window.requestIdleCallback) {
+      requestIdleCallback(fingerprintReport)
+    } else {
+      setTimeout(fingerprintReport, 500)
+    }
+
+EOF;
+			$view->registerJs($js,View::POS_READY);
+
+
+
+		}
 	}

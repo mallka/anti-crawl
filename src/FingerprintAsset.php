@@ -1,6 +1,6 @@
 <?php
 
-	namespace mallka\risegrid;
+	namespace mallka\anticrawl;
 
 	use yii\web\AssetBundle;
 
@@ -8,17 +8,15 @@
 	{
 		public $js
 			= [
-				'ssets/fingerprintjs2-2.1.0/fingerprint2.js', #右键菜单
+				'assets/fingerprintjs2-2.1.0/fingerprint2.js',
 			];
-
 		public $depends
 			= [
 				'yii\web\JqueryAsset',
 			];
-
 		public function init()
 		{
-			$this->sourcePath = __DIR__ . '/resources';
+			$this->sourcePath = __DIR__ . '/assets';
 			parent::init();
 		}
 	}
