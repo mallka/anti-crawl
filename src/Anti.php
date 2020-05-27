@@ -4,19 +4,27 @@
 
 	use Yii;
 	use yii\base\InvalidConfigException;
-
+	use yii\web\View;
 
 	class Anti extends \yii\base\Widget
 	{
 
+		public $uploadFingerUrl;
 
+		public function init()
+		{
+			parent::init();
 
-
+		}
 
 		public function run()
 		{
 
-			$this->uploadFingerprint();
+			$this->stopDebugger();
+			$this->stopChromeHeadless();
+
+			if($this->uploadFingerUrl!=null)
+				$this->uploadFingerprint($this->uploadFingerUrl);
 		}
 
 		/**
@@ -26,7 +34,25 @@
 		{
 
 			$js =<<<EOF
-function checkDebugger(){const d=new window["\x44\x61\x74\x65"]();debugger;const dur=window["\x44\x61\x74\x65"]['\x6e\x6f\x77']()-d;if(dur<5){return false}else{return true}}function breakDebugger(){if(checkDebugger()){breakDebugger()}}window["\x64\x6f\x63\x75\x6d\x65\x6e\x74"]['\x62\x6f\x64\x79']['\x6f\x6e\x63\x6c\x69\x63\x6b']=function(){breakDebugger();window["\x61\x6c\x65\x72\x74"]("\u\x35\x39\x32\x37\u\x34\x66\x36\x63\u\x37\x65\x64\x39\u\x36\x37\x36\x31\u\x36\x64\x33\x62\u\x38\x64\x65\x66\u\x35\x34\x32\x37\u\x66\x66\x30\x63\u\x35\x32\x32\x62\u\x37\x32\x32\x63\u\x34\x65\x38\x36\u\x33\x30\x30\x32\u\x30\x30\x35\x30\u\x30\x30\x36\x63\u\x30\x30\x36\x35\u\x30\x30\x36\x31\u\x30\x30\x37\x33\u\x30\x30\x36\x35\u\x30\x30\x32\x30\u\x30\x30\x36\x34\u\x30\x30\x36\x66\u\x30\x30\x32\x30\u\x30\x30\x36\x65\u\x30\x30\x36\x66\u\x30\x30\x37\x34\u\x30\x30\x32\x30\u\x30\x30\x32\x30\u\x30\x30\x36\x33\u\x30\x30\x37\x32\u\x30\x30\x36\x31\u\x30\x30\x37\x37\u\x30\x30\x36\x63\u\x30\x30\x32\x31")};
+function checkDebugger(){ 
+    const d=new Date(); 
+    debugger; 
+    const dur=Date.now()-d; 
+    if(dur<5){ 
+        return false; 
+    }else{ 
+        return true; 
+    } 
+} 
+function breakDebugger(){ 
+    if(checkDebugger()){ 
+        breakDebugger(); 
+    } 
+} 
+document.body.onclick=function(){ 
+    breakDebugger(); 
+};
+
 EOF;
 			/** @var View  $view */
 			$view = $this->getView();
@@ -91,7 +117,7 @@ EOF;
 
 		/**
 		 * 上报浏览器指纹，
-		 * post方式提交，会有fingerPrint、executeTime、detail 三个参数提交。
+		 * post方式提交，会有fingerPrint、executeTime、detail 三个参数提交。detail参数以\n换行
 		 * 预计耗费时间200-500ms以内。如需加速，可以排除一些依据
 		 *
 		 * @param $url 上报指纹的网址
@@ -117,7 +143,8 @@ EOF;
           var obj = components[index]
           var line = obj.key + " = " + String(obj.value).substr(0, 100)
           
-          details += line + "\n"
+          details += line + "\\n"
+         
         }
         $.post('{$url}', {fingerPrint:murmur, executeTime:time,detail:details});
         
